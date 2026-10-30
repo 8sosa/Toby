@@ -1,4 +1,4 @@
--- Chief of Staff database setup.
+-- Toby database setup.
 -- Run this once in Supabase: SQL Editor -> New query -> paste -> Run.
 
 -- One row per section of the app (tasks, habits, journal, money, notes, settings) per person.

@@ -1,6 +1,6 @@
-// Chief of Staff offline support: keeps the app shell cached so it opens without a connection.
+// Toby offline support: keeps the app shell cached so it opens without a connection.
 // Your data is not cached here; it lives in your account and in the app's local copy.
-const CACHE = "cos-v1";
+const CACHE = "toby-v1";
 const SHELL = ["/", "/manifest.webmanifest", "/icon-180.png", "/icon-192.png", "/icon-512.png"];
 
 self.addEventListener("install", (e) => {

@@ -63,7 +63,7 @@ export default function AuthScreen({ mode: initial, onPasswordSet }: { mode: Mod
       <div className="box">
         <img className="logo" src="/icon-192.png" alt="" width={56} height={56} />
         <div>
-          <div className="eyebrow">Chief of Staff</div>
+          <div className="eyebrow">Toby</div>
           <h1>{c.title}</h1>
         </div>
         <p>{c.lead}</p>

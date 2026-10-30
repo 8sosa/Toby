@@ -2,10 +2,10 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Chief of Staff",
+  title: "Toby",
   description: "Your tasks, habits, journal, money and notes in one place.",
-  applicationName: "Chief of Staff",
-  appleWebApp: { capable: true, title: "Chief of Staff", statusBarStyle: "default" },
+  applicationName: "Toby",
+  appleWebApp: { capable: true, title: "Toby", statusBarStyle: "default" },
   icons: { icon: "/icon-192.png", apple: "/icon-180.png" },
 };
 

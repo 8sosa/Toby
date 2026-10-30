@@ -1,4 +1,4 @@
-# Chief of Staff
+# Toby
 
 A personal assistant web app for your phone: tasks and planning, habits, a daily journal, money tracking, a calculator with quick tools, and notes. Sign in on any device and everything stays in sync.
 
