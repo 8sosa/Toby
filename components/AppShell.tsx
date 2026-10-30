@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { createStore } from "@/lib/sync";
 import { startApp } from "@/lib/engine";
+import { push } from "@/lib/push";
 
 /**
  * The signed-in app. React renders the frame once; lib/engine.js fills it in
@@ -15,8 +16,10 @@ export default function AppShell({ userId, email }: { userId: string; email: str
     const stopApp = startApp({
       store,
       email,
+      push,
       onSignOut: async () => {
         await store.flushAll();
+        await push.disable().catch(() => undefined); // stop this device getting your reminders
         store.clearLocal();
         await supabase.auth.signOut();
       },

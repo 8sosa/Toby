@@ -53,6 +53,36 @@ If you used the earlier offline-only version: in that app go to **Tools → Sett
 
 Each section (tasks, habits, journal, money, notes, settings) is saved as one row in the `user_data` table. The app also keeps a copy on the device, so it opens instantly and works without a connection; changes upload when you're back online. When the same section is edited on two devices at once, the most recent save wins.
 
+## Notifications
+
+Toby can send a morning briefing, a reminder for each task that has a time, and an evening check-in on your habits and open tasks. They arrive even when the app is closed. Times and reminder lead are set in **Tools → Settings → Notifications**.
+
+### One-time setup
+
+1. **Database.** In Supabase, open **SQL Editor → New query**, paste [`supabase/notifications.sql`](supabase/notifications.sql), and run it.
+2. **Keys.** In Vercel, open your project → **Settings → Environment Variables** and add:
+
+   | Name | Value |
+   | --- | --- |
+   | `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | Public push key (generate with `npx web-push generate-vapid-keys`) |
+   | `VAPID_PRIVATE_KEY` | Private push key from the same command |
+   | `VAPID_SUBJECT` | `mailto:` followed by your email, e.g. `mailto:you@example.com` |
+   | `SUPABASE_SERVICE_ROLE_KEY` | Supabase **secret** (or `service_role`) key, from Project Settings → API Keys |
+   | `CRON_SECRET` | Any long random password, used only by the scheduler |
+
+   The secret key and private key have no `NEXT_PUBLIC_` prefix, so they stay on the server. Then **Deployments → ⋯ → Redeploy** so the app picks them up.
+3. **Schedule.** Open [`supabase/schedule.sql`](supabase/schedule.sql), replace `YOUR_CRON_SECRET` with your `CRON_SECRET` (and the address if your app isn't at toby-rust.vercel.app), then run it in the Supabase SQL Editor. Supabase will now ask Toby every 5 minutes whether anything is due.
+4. **Your iPhone.** Open Toby from its Home Screen icon (notifications only work in the installed app on iPhone), go to **Tools → Settings**, tap **Turn on notifications**, allow them, then tap **Send a test**.
+
+### If notifications don't arrive
+
+- In Supabase SQL Editor, run `select status_code, content from net._http_response order by created desc limit 5;`
+  - `200` with `"ok":true` means the schedule works.
+  - `401` means the `CRON_SECRET` in `schedule.sql` doesn't match Vercel's.
+  - `500` lists anything missing.
+- Check iPhone **Settings → Notifications → Toby** is allowed, and Focus modes aren't hiding it.
+- Reminders use the time zone of the phone that last opened Toby.
+
 ## Run it on your computer
 
 ```bash
@@ -72,5 +102,11 @@ Open http://localhost:3000.
 | `components/AppShell.tsx` | The signed-in app frame |
 | `lib/engine.js` | Every screen and interaction in the app |
 | `lib/sync.js` | Saving to Supabase, offline copy, live updates |
+| `lib/push.ts` | Turning notifications on and off on a device |
+| `lib/server/schedule.ts` | Which reminders are due, and their wording |
+| `app/api/notify/route.ts` | Sends due reminders (called every 5 minutes) |
+| `app/api/push/test/route.ts` | The "Send a test" button |
 | `supabase/schema.sql` | Database table and security rules |
-| `public/sw.js` | Offline support |
+| `supabase/notifications.sql` | Tables for devices and sent reminders |
+| `supabase/schedule.sql` | The 5-minute schedule |
+| `public/sw.js` | Offline support and showing notifications |
