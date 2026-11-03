@@ -122,6 +122,8 @@ export function dueNotices(input: {
   occasions?: Occasion[];
   events?: Event[];
   debts?: Debt[];
+  limits?: Record<string, number>;
+  spentByCat?: Record<string, number>;
   money?: (n: number) => string;
 }): Notice[] {
   const { date: today, time, tz } = localNow(input.now, input.timeZone);
@@ -242,6 +244,26 @@ export function dueNotices(input: {
         body: `${fmtMoney(Math.round(bal))} ${d.dir === "owe" ? "left to repay" : "still owed to you"}.`,
         url: "/#money",
         tag: `debt-${d.id}`,
+      });
+    }
+  }
+
+  // 3c. Category limits: once at 80% and once when passed, each month.
+  if (input.prefs.billsOn && inDailyWindow(input.prefs.brief) && input.limits) {
+    const month = today.slice(0, 7);
+    const [yy, mm] = month.split("-").map(Number);
+    const left = new Date(Date.UTC(yy, mm, 0)).getUTCDate() - +today.slice(8);
+    for (const [cat, lim] of Object.entries(input.limits)) {
+      if (!(lim > 0)) continue;
+      const v = (input.spentByCat || {})[cat] || 0;
+      const level = v >= lim ? 100 : v >= lim * 0.8 ? 80 : 0;
+      if (!level) continue;
+      out.push({
+        ref: `limit:${cat}:${month}:${level}`,
+        title: level === 100 ? `${cat} is over its limit` : `${cat} is at ${Math.round((v / lim) * 100)}% of its limit`,
+        body: `${fmtMoney(Math.round(v))} of ${fmtMoney(lim)} spent, ${left} ${left === 1 ? "day" : "days"} left this month.`,
+        url: "/#money",
+        tag: `limit-${cat}`,
       });
     }
   }

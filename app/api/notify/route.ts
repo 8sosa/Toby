@@ -3,7 +3,7 @@
 // birthdays, the evening check-in and the weekly review.
 import { NextResponse } from "next/server";
 import { adminClient, isAuthorizedCron, missingServerConfig, sendToDevices, type SubRow } from "@/lib/server/push";
-import { briefingDue, dueNotices, readPrefs, type Bill, type Habit, type Meeting, type Occasion, type Person, type Task, type Debt } from "@/lib/server/schedule";
+import { briefingDue, dueNotices, localNow, readPrefs, type Bill, type Habit, type Meeting, type Occasion, type Person, type Task, type Debt } from "@/lib/server/schedule";
 import { calendarUrls, loadEvents, type CalEvent } from "@/lib/server/ics";
 
 export const dynamic = "force-dynamic";
@@ -47,7 +47,27 @@ async function run(req: Request) {
       events = (await loadEvents(urls, new Date(now.getTime() - 864e5), new Date(now.getTime() + 2 * 864e5))).events;
     }
 
+    // Spending per category this month, for limit alerts (only read around briefing time).
+    let limits: Record<string, number> | undefined, spentByCat: Record<string, number> | undefined;
+    const nowLocal = localNow(now, timeZone);
+    const [bh, bm] = prefs.brief.split(":").map(Number), [nh, nm] = nowLocal.time.split(":").map(Number);
+    const sinceBrief = nh * 60 + nm - (bh * 60 + bm);
+    if (sinceBrief >= 0 && sinceBrief < 90) {
+      const { data: m } = await db.from("user_data").select("data").eq("user_id", userId).eq("key", "money").maybeSingle();
+      const money = (m?.data || {}) as { limits?: Record<string, number>; entries?: { type: string; cat: string; amt: number; date: string; splits?: { cat: string; amt: number }[] }[] };
+      if (money.limits && Object.keys(money.limits).length) {
+        limits = money.limits; spentByCat = {};
+        const month = nowLocal.date.slice(0, 7);
+        for (const e of money.entries || []) {
+          if (e.type === "in" || e.cat === "Lending" || e.date.slice(0, 7) !== month) continue;
+          const parts = e.splits && e.splits.length ? [...e.splits, { cat: e.cat, amt: e.amt - e.splits.reduce((a, x) => a + x.amt, 0) }] : [{ cat: e.cat, amt: e.amt }];
+          for (const p of parts) if (p.amt > 0) spentByCat[p.cat] = (spentByCat[p.cat] || 0) + p.amt;
+        }
+      }
+    }
+
     const notices = dueNotices({
+      limits, spentByCat,
       now, timeZone, tasks, habits, habitLog, prefs, events, money,
       meetings: (get("meetings").items || []) as Meeting[],
       bills: (get("bills").items || []) as Bill[],

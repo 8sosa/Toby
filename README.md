@@ -5,7 +5,7 @@ A personal assistant web app for your phone. Sign in on any device and everythin
 - **Today**: your schedule, tasks, bills and birthdays coming up, people to catch up with, and this week's priorities
 - **Plan**: tasks (including repeating ones), a month calendar, projects with progress, and meetings with action items
 - **Habits**: daily habits plus water, sleep and weight logs
-- **Money**: a financial health score, spending by day with spike detection, budget, bills and subscriptions, savings goals, loans and debts, and statement import
+- **Money**: safe-to-spend until payday, payday plans, a financial health score, spending by day, category limits with alerts, bills (with recurring-payment detection), savings goals, debts and lending, net worth, 6-month trends, transfers by person, split transactions, statement import and a summary to discuss with Claude
 - **People**: contacts with birthdays, anniversaries and keep-in-touch reminders
 - **More**: journal, shared lists (shopping, reading, watch), weekly review, notes, calculator, settings
 - Search across everything, notifications, Siri and Share Sheet support, and Google/iCloud/Outlook calendar links
