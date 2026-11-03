@@ -114,6 +114,19 @@ Keys can be turned off at any time from the same screen. Only a fingerprint of e
 
 Paste a calendar's private iCal link into **More → Settings → Calendar** (one per line). Events then show in Today, the Plan calendar and the morning briefing. The Settings screen explains where to find the link for Google, iCloud and Outlook. Toby only reads these calendars and never changes them.
 
+## Importing bank statements
+
+**Money → Import a bank statement** reads PDF (including password-protected), Excel (.xlsx) and CSV statements, on your device. It:
+
+- sorts each transaction into a category, and remembers your corrections for next time
+- skips money moving between your own accounts (OWealth auto-save, transfers to your own name at other banks)
+- cancels out payments that were later reversed, and leaves loans out by default
+- folds stamp duty, VAT, commissions and daily interest into one line per month
+- never adds the same transaction twice, and flags ones you already logged by hand
+- marks a bill paid when a payment matches it
+
+Tested with OPay Excel exports and Access Bank PDF statements. Other banks work if the statement has dates and debit/credit (or amount) columns.
+
 ## Shared lists
 
 Any list can be shared from **More → Lists → Share**. The link opens a simple page at `/s/…` where anyone can add and tick items without an account. **Stop sharing** makes the old link stop working.

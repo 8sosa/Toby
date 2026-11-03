@@ -269,3 +269,11 @@ details summary{cursor:pointer;color:var(--accent);font-weight:500}
 .list-tabs .chip.acc{font-weight:600}
 .item .body a{color:var(--accent);overflow-wrap:anywhere}
 .search-res{display:flex;flex-direction:column;min-height:120px}
+
+/* ---------- Statement import ---------- */
+.file-btn{display:flex;justify-content:center;cursor:pointer}
+.im-row{align-items:flex-start}
+.im-row.off .t,.im-row.off .amt{color:var(--faint)}
+.im-row.off .amt{text-decoration:line-through}
+.im-check{width:20px;height:20px;margin-top:2px;flex:none;accent-color:var(--accent)}
+.im-cat{margin-top:6px;padding:6px 8px;font-size:14px;width:auto;max-width:100%}
