@@ -439,3 +439,11 @@ details.split{margin:2px 0}
 .hm-key .hm-c{width:11px;height:11px}
 .hb-row .t{font-size:15px;overflow-wrap:anywhere}
 .hb-row .m{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:12px;color:var(--muted);margin-top:3px}
+
+/* ---------- People ---------- */
+.group-chips{margin-top:10px;gap:6px}
+.group-chips .chip{cursor:pointer;font-size:13px;padding:5px 10px}
+.pe-head{display:flex;align-items:center;gap:12px}
+.avatar.big{width:52px;height:52px;font-size:17px}
+.pe-snap{background:var(--surface-2);border-radius:12px;padding:8px 12px}
+.sheet .chips .chip{cursor:pointer}

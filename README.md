@@ -2,11 +2,11 @@
 
 A personal assistant web app for your phone. Sign in on any device and everything stays in sync.
 
-- **Today**: your schedule, tasks, bills and birthdays coming up, people to catch up with, and this week's priorities
-- **Plan**: tasks (including repeating ones), a month calendar, projects with progress, and meetings with action items
-- **Habits**: daily habits plus water, sleep and weight logs
+- **Today**: a daily briefing with weather, top 3 priorities, a timeline with free time, quick actions, an evening wrap-up, and a layout you can customise
+- **Plan**: tasks (repeating, checklists, time estimates, waiting on someone), a week planner with daily load, a month calendar, projects with progress, and meetings with action items
+- **Habits**: flexible schedules, counted habits, reminders, streaks, a 12-week heatmap, plus water, sleep and weight logs
 - **Money**: safe-to-spend until payday, payday plans, a financial health score, spending by day, category limits with alerts, bills (with recurring-payment detection), savings goals, debts and lending, net worth, 6-month trends, transfers by person, split transactions, statement import and a summary to discuss with Claude
-- **People**: contacts with birthdays, anniversaries and keep-in-touch reminders
+- **People**: groups, rich profiles, a contact log, money and tasks shared with each person, birthday wishes, drifting contacts, keep-in-touch reminders and vCard import
 - **More**: journal, focus timer, shared lists, notes, documents & renewals (with expiry reminders), countdowns, weekly review, money calculators (loan cost, savings plan, 2026 PAYE salary tax), converters (units, land/plot sizes, fuel trip cost, currency), world clock with call planner, QR codes (bank details, Wi-Fi, contacts), settings
 - Search across everything, notifications, Siri and Share Sheet support, and Google/iCloud/Outlook calendar links
 
