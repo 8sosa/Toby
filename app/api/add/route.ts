@@ -4,6 +4,7 @@
 import { adminClient } from "@/lib/server/push";
 import { serverReady, userFromKey } from "@/lib/server/auth";
 import { classify } from "@/lib/quick";
+import { isOwnName, nameTokens } from "@/lib/statements";
 import { localNow } from "@/lib/server/schedule";
 import { randomUUID } from "node:crypto";
 
@@ -12,7 +13,7 @@ export const dynamic = "force-dynamic";
 type ParsedTask = { title: string; date: string; time: string; pri: string; repeat: string };
 type Classified =
   | { kind: "task"; task: ParsedTask }
-  | { kind: "expense"; type: "in" | "out"; amt: number; cat: string; note: string }
+  | { kind: "expense"; type: "in" | "out"; amt: number; cat: string; note: string; date?: string; who?: string; receipt?: boolean }
   | { kind: "note"; title: string; body: string }
   | { kind: "list"; list: string; items: string[] };
 
@@ -68,9 +69,15 @@ export async function POST(req: Request) {
     return reply(`Added to ${list!.name}: ${c.items.join(", ")}`);
   }
 
+  // A receipt for money moved to your own account isn't spending.
+  if (c.kind === "expense" && c.receipt && c.who) {
+    const names = Array.isArray(settingsRow?.data?.myNames) ? (settingsRow!.data.myNames as string[]) : [];
+    if (names.length && isOwnName(c.who, nameTokens(names))) return reply("Skipped: that's a transfer between your own accounts.");
+  }
+
   const payload =
     c.kind === "task" ? { id: randomUUID(), ...c.task } :
-    c.kind === "expense" ? { id: randomUUID(), type: c.type, amt: c.amt, cat: c.cat, note: c.note, date: today } :
+    c.kind === "expense" ? { id: randomUUID(), type: c.type, amt: c.amt, cat: c.cat, note: c.note, date: c.date || today } :
     { id: randomUUID(), title: c.title, body: c.body };
   const { error } = await db.from("inbox").insert({ user_id: userId, kind: c.kind, payload });
   if (error) return reply("Couldn't save that. Make sure the latest database update is installed.", 500);
@@ -80,7 +87,12 @@ export async function POST(req: Request) {
     const when = [t.date === today ? "today" : t.date ? "on " + new Date(t.date + "T12:00:00Z").toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" }) : "", t.time ? "at " + fmtTime(t.time) : ""].filter(Boolean).join(" ");
     return reply(`Added: ${t.title}${when ? " " + when : ""}${t.repeat ? ", repeating" : ""}.`);
   }
-  if (c.kind === "expense") return reply(`Logged ${c.type === "in" ? "income" : "expense"}: ${c.amt.toLocaleString("en-US")}${c.note ? " for " + c.note : ""}.`);
+  if (c.kind === "expense") {
+    const cur = (settingsRow?.data?.currency as string) || "";
+    const amount = cur + c.amt.toLocaleString("en-US", { maximumFractionDigits: 2 });
+    if (c.receipt) return reply(`Logged ${c.type === "in" ? "money in" : "spending"}: ${amount} · ${c.note} · ${c.cat}.`);
+    return reply(`Logged ${c.type === "in" ? "income" : "expense"}: ${amount}${c.note ? " for " + c.note : ""}.`);
+  }
   return reply(`Saved a note: ${c.title}`);
 }
 

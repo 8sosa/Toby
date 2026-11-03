@@ -3,7 +3,7 @@
 // birthdays, the evening check-in and the weekly review.
 import { NextResponse } from "next/server";
 import { adminClient, isAuthorizedCron, missingServerConfig, sendToDevices, type SubRow } from "@/lib/server/push";
-import { briefingDue, dueNotices, readPrefs, type Bill, type Habit, type Meeting, type Occasion, type Person, type Task } from "@/lib/server/schedule";
+import { briefingDue, dueNotices, readPrefs, type Bill, type Habit, type Meeting, type Occasion, type Person, type Task, type Debt } from "@/lib/server/schedule";
 import { calendarUrls, loadEvents, type CalEvent } from "@/lib/server/ics";
 
 export const dynamic = "force-dynamic";
@@ -25,7 +25,7 @@ async function run(req: Request) {
   let sent = 0;
   const problems: string[] = [];
   for (const [userId, devices] of byUser) {
-    const { data: rows } = await db.from("user_data").select("key,data").eq("user_id", userId).in("key", ["tasks", "habits", "settings", "meetings", "bills", "people"]);
+    const { data: rows } = await db.from("user_data").select("key,data").eq("user_id", userId).in("key", ["tasks", "habits", "settings", "meetings", "bills", "people", "debts"]);
     const get = (k: string) => (rows || []).find((r) => r.key === k)?.data || {};
     const tasks = (get("tasks").items || []) as Task[];
     // Tasks added by Siri that haven't been opened in the app yet still get reminders.
@@ -53,6 +53,7 @@ async function run(req: Request) {
       bills: (get("bills").items || []) as Bill[],
       people: (get("people").items || []) as Person[],
       occasions: (get("people").dates || []) as Occasion[],
+      debts: (get("debts").items || []) as Debt[],
     });
     for (const n of notices) {
       // Claim the notification first so a parallel run can't send it twice.

@@ -5,7 +5,7 @@ A personal assistant web app for your phone. Sign in on any device and everythin
 - **Today**: your schedule, tasks, bills and birthdays coming up, people to catch up with, and this week's priorities
 - **Plan**: tasks (including repeating ones), a month calendar, projects with progress, and meetings with action items
 - **Habits**: daily habits plus water, sleep and weight logs
-- **Money**: spending and budget, bills and subscriptions with reminders, and savings goals
+- **Money**: a financial health score, spending by day with spike detection, budget, bills and subscriptions, savings goals, loans and debts, and statement import
 - **People**: contacts with birthdays, anniversaries and keep-in-touch reminders
 - **More**: journal, shared lists (shopping, reading, watch), weekly review, notes, calculator, settings
 - Search across everything, notifications, Siri and Share Sheet support, and Google/iCloud/Outlook calendar links
@@ -126,6 +126,15 @@ Paste a calendar's private iCal link into **More → Settings → Calendar** (on
 - marks a bill paid when a payment matches it
 
 Tested with OPay Excel exports and Access Bank PDF statements. Other banks work if the statement has dates and debit/credit (or amount) columns.
+
+## Logging spending automatically
+
+Two Shortcuts send transactions to `/api/add` as they happen (steps are in **More → Settings → Log spending automatically**):
+
+- **Share an OPay receipt** as an image: the shortcut reads the text on the receipt and Toby logs the amount, who it went to and a category.
+- **Bank SMS alerts**: a Message automation forwards each debit or credit alert.
+
+Transfers to your own name are skipped, and a later statement import recognises these entries so nothing is counted twice.
 
 ## Shared lists
 

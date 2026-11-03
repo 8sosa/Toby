@@ -8,6 +8,7 @@ export type Bill = { id: string; name: string; amt: number; due: string; remind?
 export type Person = { id: string; name: string; bday?: string; followEvery?: number; last?: string };
 export type Occasion = { id: string; title: string; md: string; remind?: number };
 export type Event = { title: string; start: string; allDay: boolean };
+export type Debt = { id: string; name: string; dir: "owe" | "owed"; amount: number; due?: string; log?: { amt: number; kind?: string }[] };
 export type NotifyPrefs = {
   briefOn: boolean; brief: string; lead: number; eveOn: boolean; eve: string;
   billsOn: boolean; datesOn: boolean; reviewOn: boolean; reviewDay: number; review: string;
@@ -120,6 +121,7 @@ export function dueNotices(input: {
   people?: Person[];
   occasions?: Occasion[];
   events?: Event[];
+  debts?: Debt[];
   money?: (n: number) => string;
 }): Notice[] {
   const { date: today, time, tz } = localNow(input.now, input.timeZone);
@@ -222,6 +224,25 @@ export function dueNotices(input: {
           tag: `bill-${b.id}`,
         });
       }
+    }
+  }
+
+  // 3b. Loans and debts with a due date: 3 days before and on the day.
+  if (input.prefs.billsOn && inDailyWindow(input.prefs.brief)) {
+    for (const d of input.debts || []) {
+      if (!d || !/^\d{4}-\d{2}-\d{2}$/.test(d.due || "")) continue;
+      const log = d.log || [];
+      const bal = (d.amount || 0) + log.filter((l) => l.kind === "add").reduce((a, l) => a + l.amt, 0) - log.filter((l) => l.kind !== "add").reduce((a, l) => a + l.amt, 0);
+      if (bal <= 0.009) continue;
+      const n = daysBetween(today, d.due!);
+      if (n !== 3 && n !== 0) continue;
+      out.push({
+        ref: `debt:${d.id}:${d.due}:${n}`,
+        title: d.dir === "owe" ? `${d.name} repayment due ${whenIn(n, d.due!)}` : `${d.name} is due to pay you back ${whenIn(n, d.due!)}`,
+        body: `${fmtMoney(Math.round(bal))} ${d.dir === "owe" ? "left to repay" : "still owed to you"}.`,
+        url: "/#money",
+        tag: `debt-${d.id}`,
+      });
     }
   }
 
