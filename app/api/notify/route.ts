@@ -1,8 +1,10 @@
 // Runs every few minutes (called by the Supabase scheduler, see README) and sends
-// whatever reminders are due: task reminders, the morning briefing and the evening check-in.
+// whatever reminders are due: task and meeting reminders, the morning briefing, bills,
+// birthdays, the evening check-in and the weekly review.
 import { NextResponse } from "next/server";
 import { adminClient, isAuthorizedCron, missingServerConfig, sendToDevices, type SubRow } from "@/lib/server/push";
-import { dueNotices, readPrefs, type Habit, type Task } from "@/lib/server/schedule";
+import { briefingDue, dueNotices, readPrefs, type Bill, type Habit, type Meeting, type Occasion, type Person, type Task } from "@/lib/server/schedule";
+import { calendarUrls, loadEvents, type CalEvent } from "@/lib/server/ics";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -23,16 +25,36 @@ async function run(req: Request) {
   let sent = 0;
   const problems: string[] = [];
   for (const [userId, devices] of byUser) {
-    const { data: rows } = await db.from("user_data").select("key,data").eq("user_id", userId).in("key", ["tasks", "habits", "settings"]);
+    const { data: rows } = await db.from("user_data").select("key,data").eq("user_id", userId).in("key", ["tasks", "habits", "settings", "meetings", "bills", "people"]);
     const get = (k: string) => (rows || []).find((r) => r.key === k)?.data || {};
     const tasks = (get("tasks").items || []) as Task[];
+    // Tasks added by Siri that haven't been opened in the app yet still get reminders.
+    const { data: pending } = await db.from("inbox").select("payload").eq("user_id", userId).eq("kind", "task");
+    for (const p of pending || []) if (p.payload && !tasks.some((t) => t.id === p.payload.id)) tasks.push(p.payload as Task);
     const habits = (get("habits").items || []) as Habit[];
     const habitLog = (get("habits").log || {}) as Record<string, string[]>;
-    const prefs = readPrefs(get("settings").notify);
+    const settings = get("settings");
+    const prefs = readPrefs(settings.notify);
     // Use the time zone of the device that checked in most recently.
-    const timeZone = [...devices].sort((a, b) => b.updated_at.localeCompare(a.updated_at))[0].time_zone || "UTC";
+    const timeZone = [...devices].sort((a, b) => b.updated_at.localeCompare(a.updated_at))[0].time_zone || settings.tz || "UTC";
+    const currency = typeof settings.currency === "string" ? settings.currency : "";
+    const money = (n: number) => currency + Number(n || 0).toLocaleString("en-US", { maximumFractionDigits: 2 });
 
-    for (const n of dueNotices({ now, timeZone, tasks, habits, habitLog, prefs })) {
+    // Calendar events are only needed for the morning briefing.
+    let events: CalEvent[] = [];
+    const urls = calendarUrls(settings);
+    if (urls.length && briefingDue(now, timeZone, prefs)) {
+      events = (await loadEvents(urls, new Date(now.getTime() - 864e5), new Date(now.getTime() + 2 * 864e5))).events;
+    }
+
+    const notices = dueNotices({
+      now, timeZone, tasks, habits, habitLog, prefs, events, money,
+      meetings: (get("meetings").items || []) as Meeting[],
+      bills: (get("bills").items || []) as Bill[],
+      people: (get("people").items || []) as Person[],
+      occasions: (get("people").dates || []) as Occasion[],
+    });
+    for (const n of notices) {
       // Claim the notification first so a parallel run can't send it twice.
       const { error: dup } = await db.from("notify_log").insert({ user_id: userId, ref: n.ref });
       if (dup) {

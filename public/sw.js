@@ -1,7 +1,7 @@
 // Toby service worker: keeps the app shell cached so it opens without a connection,
 // and shows the reminders the server sends.
 // Your data is not cached here; it lives in your account and in the app's local copy.
-const CACHE = "toby-v2";
+const CACHE = "toby-v3";
 const SHELL = ["/", "/manifest.webmanifest", "/icon-180.png", "/icon-192.png", "/icon-512.png"];
 
 self.addEventListener("install", (e) => {

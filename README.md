@@ -1,6 +1,14 @@
 # Toby
 
-A personal assistant web app for your phone: tasks and planning, habits, a daily journal, money tracking, a calculator with quick tools, and notes. Sign in on any device and everything stays in sync.
+A personal assistant web app for your phone. Sign in on any device and everything stays in sync.
+
+- **Today**: your schedule, tasks, bills and birthdays coming up, people to catch up with, and this week's priorities
+- **Plan**: tasks (including repeating ones), a month calendar, projects with progress, and meetings with action items
+- **Habits**: daily habits plus water, sleep and weight logs
+- **Money**: spending and budget, bills and subscriptions with reminders, and savings goals
+- **People**: contacts with birthdays, anniversaries and keep-in-touch reminders
+- **More**: journal, shared lists (shopping, reading, watch), weekly review, notes, calculator, settings
+- Search across everything, notifications, Siri and Share Sheet support, and Google/iCloud/Outlook calendar links
 
 - **Next.js** app, installable on iPhone from Safari (Add to Home Screen) and works offline
 - **Supabase** for sign-in and the database (free tier is plenty for personal use)
@@ -11,7 +19,7 @@ A personal assistant web app for your phone: tasks and planning, habits, a daily
 ### 1. Create the database
 
 1. Sign up at [supabase.com](https://supabase.com) and create a new project. Pick the region closest to you and save the database password somewhere safe.
-2. Open **SQL Editor → New query**, paste everything in [`supabase/schema.sql`](supabase/schema.sql), and click **Run**. This creates one table and locks it so each account can only read its own data.
+2. Open **SQL Editor → New query**, paste everything in [`supabase/schema.sql`](supabase/schema.sql), and click **Run**. Then do the same with [`supabase/v3.sql`](supabase/v3.sql). Together they create the tables and lock them so each account can only read its own data.
 3. Open **Project Settings → API** (or the **Connect** button) and copy:
    - the **Project URL**
    - the **anon / publishable** key
@@ -83,6 +91,33 @@ Toby can send a morning briefing, a reminder for each task that has a time, and 
 - Check iPhone **Settings → Notifications → Toby** is allowed, and Focus modes aren't hiding it.
 - Reminders use the time zone of the phone that last opened Toby.
 
+## Updating from an earlier version
+
+If you set Toby up before people, bills, lists and Siri were added, run [`supabase/v3.sql`](supabase/v3.sql) once in the Supabase SQL Editor. Until you do, Toby shows **Update needed** at the top and keeps new items on the device.
+
+## Siri and the Share Sheet
+
+In Toby, go to **More → Settings → Siri and Shortcuts**, create a key and follow the steps shown there. The shortcut sends what you say to `/api/add`, and Toby works out what it is:
+
+| You say or share | Toby adds |
+| --- | --- |
+| "Call the bank tomorrow at 10am" | A task with a reminder |
+| "Pay rent monthly on the 1st" | A repeating task |
+| "Buy milk, eggs and bread" | Three items on your Shopping list |
+| "Spent 5,000 on lunch" | An expense under Food |
+| "Note: gate code 4471" | A note |
+| A web link | An item on your Reading list |
+
+Keys can be turned off at any time from the same screen. Only a fingerprint of each key is stored.
+
+## Calendars
+
+Paste a calendar's private iCal link into **More → Settings → Calendar** (one per line). Events then show in Today, the Plan calendar and the morning briefing. The Settings screen explains where to find the link for Google, iCloud and Outlook. Toby only reads these calendars and never changes them.
+
+## Shared lists
+
+Any list can be shared from **More → Lists → Share**. The link opens a simple page at `/s/…` where anyone can add and tick items without an account. **Stop sharing** makes the old link stop working.
+
 ## Run it on your computer
 
 ```bash
@@ -100,7 +135,13 @@ Open http://localhost:3000.
 | `app/page.tsx` | Decides whether to show sign-in or the app |
 | `components/AuthScreen.tsx` | Sign in, create account, reset password |
 | `components/AppShell.tsx` | The signed-in app frame |
-| `lib/engine.js` | Every screen and interaction in the app |
+| `lib/engine.js` | Core screens (Today, tasks, habits, journal, money, notes, settings) |
+| `lib/features.js` | People, meetings, projects, calendar, bills, savings, health, lists, review, search |
+| `lib/quick.js` | Understanding typed or spoken input, and repeat rules |
+| `lib/cloud.js` | Lists, Siri inbox, Shortcut keys and calendar requests |
+| `app/api/add/route.ts` | The Siri / Shortcuts endpoint |
+| `app/api/calendar/route.ts` | Reads linked calendars |
+| `app/api/shared/[token]/route.ts`, `app/s/[token]/page.tsx` | Shared lists for family |
 | `lib/sync.js` | Saving to Supabase, offline copy, live updates |
 | `lib/push.ts` | Turning notifications on and off on a device |
 | `lib/server/schedule.ts` | Which reminders are due, and their wording |
@@ -109,4 +150,5 @@ Open http://localhost:3000.
 | `supabase/schema.sql` | Database table and security rules |
 | `supabase/notifications.sql` | Tables for devices and sent reminders |
 | `supabase/schedule.sql` | The 5-minute schedule |
+| `supabase/v3.sql` | Update for people, bills, lists, Siri and more |
 | `public/sw.js` | Offline support and showing notifications |
