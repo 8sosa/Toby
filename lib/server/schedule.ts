@@ -2,7 +2,7 @@
 // Pure functions (no database, no network) so the timing rules are easy to test.
 
 export type Task = { id: string; title: string; date: string; time: string; pri?: string; done?: boolean; doneAt?: number };
-export type Habit = { id: string; name: string };
+export type Habit = { id: string; name: string; days?: number[]; perWeek?: number; remind?: string; paused?: boolean; created?: string };
 export type Meeting = { id: string; title: string; date: string; time: string };
 export type Bill = { id: string; name: string; amt: number; due: string; remind?: number; active?: boolean };
 export type Person = { id: string; name: string; bday?: string; followEvery?: number; last?: string };
@@ -163,6 +163,25 @@ export function dueNotices(input: {
     }
   }
 
+  // Habits due today: on scheduled days, or for "N a week" until the week's target is met.
+  const wdToday = weekday(today);
+  const weekStartD = addDays(today, -((wdToday + 6) % 7));
+  const doneOn = (id: string, d: string) => (input.habitLog[d] || []).includes(id);
+  const habitDue = (h: Habit) => {
+    if (!h || h.paused || (h.created && today < h.created.slice(0, 10))) return false;
+    if (h.perWeek) { let n = 0; for (let i = 0; i < 7; i++) if (doneOn(h.id, addDays(weekStartD, i))) n++; return doneOn(h.id, today) || n < h.perWeek; }
+    return h.days && h.days.length ? h.days.includes(wdToday) : true;
+  };
+  const dueHabits = input.habits.filter(habitDue);
+
+  // 1b. Habit reminders at their chosen time, if not done yet.
+  for (const h of dueHabits) {
+    if (!h.remind || !/^\d{2}:\d{2}$/.test(h.remind) || doneOn(h.id, today)) continue;
+    const fireAt = minutes(today, h.remind);
+    if (fireAt > nowMin || fireAt <= nowMin - TASK_WINDOW_MIN) continue;
+    out.push({ ref: `habit:${h.id}:${today}`, title: h.name, body: "Time for this habit. Tap to tick it off.", url: "/#habits", tag: `habit-${h.id}` });
+  }
+
   // Things happening today, used by the briefing.
   const todaysTasks = open.filter((t) => t.date === today).sort((a, b) => (a.time || "99").localeCompare(b.time || "99"));
   const overdue = open.filter((t) => t.date && t.date < today);
@@ -308,7 +327,7 @@ export function dueNotices(input: {
   // 5. Evening check-in: habits not yet logged and tasks still open today.
   if (input.prefs.eveOn && inDailyWindow(input.prefs.eve)) {
     const doneToday = new Set(input.habitLog[today] || []);
-    const habitsLeft = input.habits.filter((h) => !doneToday.has(h.id)).map((h) => h.name);
+    const habitsLeft = dueHabits.filter((h) => !doneToday.has(h.id)).map((h) => h.name);
     const tasksLeft = open.filter((t) => t.date && t.date <= today);
     if (habitsLeft.length || tasksLeft.length) {
       const head: string[] = [];
