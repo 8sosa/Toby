@@ -395,3 +395,20 @@ details.split{margin:2px 0}
 .moods.mini .mood{padding:8px 2px;font-size:12px}
 .customize{align-self:center;margin-top:4px}
 .b3-pick{max-height:46vh;overflow:auto}
+
+/* ---------- Plan extras ---------- */
+.date-chips{display:flex;flex-wrap:wrap;gap:6px}
+.date-chips .chip{cursor:pointer;font-size:13px;padding:5px 10px}
+.check.small{width:20px;height:20px}
+.check.small svg{width:12px;height:12px}
+.sub-row{padding:6px 0}
+.load{display:flex;flex-direction:column;gap:4px;margin:-2px 0 10px}
+.load-bar{height:6px;background:var(--surface-2);border-radius:4px;overflow:hidden}
+.load-bar i{display:block;height:100%;background:var(--accent);border-radius:4px}
+.load-bar i.over{background:var(--bad)}
+.week-day.is-today{border-color:color-mix(in srgb,var(--accent) 40%,var(--line))}
+.wk-sched{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.tray .body{display:flex;flex-direction:column;gap:6px}
+.day-pick{display:flex;flex-wrap:wrap;gap:4px}
+.day-pick .chip{cursor:pointer}
+.tl-acts{display:flex;gap:12px}
