@@ -8,6 +8,7 @@ export type Bill = { id: string; name: string; amt: number; due: string; remind?
 export type Person = { id: string; name: string; bday?: string; followEvery?: number; last?: string };
 export type Occasion = { id: string; title: string; md: string; remind?: number };
 export type Event = { title: string; start: string; allDay: boolean };
+export type Doc = { id: string; name: string; type: string; expires?: string };
 export type Debt = { id: string; name: string; dir: "owe" | "owed"; amount: number; due?: string; log?: { amt: number; kind?: string }[] };
 export type NotifyPrefs = {
   briefOn: boolean; brief: string; lead: number; eveOn: boolean; eve: string;
@@ -123,6 +124,7 @@ export function dueNotices(input: {
   events?: Event[];
   debts?: Debt[];
   limits?: Record<string, number>;
+  docs?: Doc[];
   spentByCat?: Record<string, number>;
   money?: (n: number) => string;
 }): Notice[] {
@@ -264,6 +266,22 @@ export function dueNotices(input: {
         body: `${fmtMoney(Math.round(v))} of ${fmtMoney(lim)} spent, ${left} ${left === 1 ? "day" : "days"} left this month.`,
         url: "/#money",
         tag: `limit-${cat}`,
+      });
+    }
+  }
+
+  // 3d. Documents: 60, 30 and 7 days before they expire, and on the day.
+  if (input.prefs.datesOn && inDailyWindow(input.prefs.brief)) {
+    for (const d of input.docs || []) {
+      if (!d || !/^\d{4}-\d{2}-\d{2}$/.test(d.expires || "")) continue;
+      const n = daysBetween(today, d.expires!);
+      if (![60, 30, 7, 0].includes(n)) continue;
+      out.push({
+        ref: `doc:${d.id}:${d.expires}:${n}`,
+        title: n === 0 ? `${d.name || d.type} expires today` : `${d.name || d.type} expires ${whenIn(n, d.expires!)}`,
+        body: n >= 30 ? "Start the renewal now; offices can take weeks." : "Renew it soon to avoid problems.",
+        url: "/#docs",
+        tag: `doc-${d.id}`,
       });
     }
   }

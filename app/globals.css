@@ -337,3 +337,26 @@ details summary{cursor:pointer;color:var(--accent);font-weight:500}
 .trend-table .cell{font-family:var(--f-mono);font-size:10.5px;text-align:center;padding:5px 0;border-radius:5px;background:color-mix(in srgb,var(--accent) calc(var(--a) * 42%),var(--surface-2));color:var(--ink)}
 .person-cat{width:auto;max-width:150px;padding:7px 8px;font-size:13px;flex:none}
 details.split{margin:2px 0}
+
+/* ---------- More: toolbox ---------- */
+.more-h{margin:6px 0 -6px}
+.tile.alert{border-color:var(--mark)}
+.tile.alert span{color:var(--mark);font-weight:500}
+.focus-card{display:grid;gap:12px}
+.fc-ring{--p:0;width:220px;max-width:100%;aspect-ratio:1/1;margin:4px auto;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--accent) calc(var(--p) * 360deg),var(--surface-2) 0)}
+.fc-ring > div{width:84%;aspect-ratio:1/1;border-radius:50%;background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.fc-ring b{font-family:var(--f-mono);font-size:44px;font-weight:500;font-variant-numeric:tabular-nums}
+.fc-kind{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.cd-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.cd{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.cd > b{font-family:var(--f-display);font-size:38px;font-weight:500;line-height:1;font-variant-numeric:tabular-nums}
+.cd .t{font-weight:600;margin-top:6px;overflow-wrap:anywhere}
+.cd-x{position:absolute;top:6px;right:6px;border:0;background:none;color:var(--faint);font-size:18px;padding:4px 8px}
+.cd-strip{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+.cd-mini{flex:none;display:flex;align-items:baseline;gap:6px;padding:8px 12px;border-radius:99px;background:var(--accent-soft);color:var(--accent);text-decoration:none;font-size:13px}
+.cd-mini b{font-family:var(--f-mono);font-size:16px}
+.calc-out{margin-top:12px;display:flex;flex-direction:column;gap:2px}
+.clock-t{font-size:24px;font-weight:500;font-family:var(--f-mono)}
+.qr-box{display:grid;place-items:center;margin:14px auto 10px;width:220px;max-width:100%;aspect-ratio:1/1;background:#fff;border-radius:12px;padding:6px}
+.qr-box svg{width:100%;height:100%}
+.tiles > .tile:last-child:nth-child(odd){grid-column:1/-1}

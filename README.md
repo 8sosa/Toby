@@ -7,7 +7,7 @@ A personal assistant web app for your phone. Sign in on any device and everythin
 - **Habits**: daily habits plus water, sleep and weight logs
 - **Money**: safe-to-spend until payday, payday plans, a financial health score, spending by day, category limits with alerts, bills (with recurring-payment detection), savings goals, debts and lending, net worth, 6-month trends, transfers by person, split transactions, statement import and a summary to discuss with Claude
 - **People**: contacts with birthdays, anniversaries and keep-in-touch reminders
-- **More**: journal, shared lists (shopping, reading, watch), weekly review, notes, calculator, settings
+- **More**: journal, focus timer, shared lists, notes, documents & renewals (with expiry reminders), countdowns, weekly review, money calculators (loan cost, savings plan, 2026 PAYE salary tax), converters (units, land/plot sizes, fuel trip cost, currency), world clock with call planner, QR codes (bank details, Wi-Fi, contacts), settings
 - Search across everything, notifications, Siri and Share Sheet support, and Google/iCloud/Outlook calendar links
 
 - **Next.js** app, installable on iPhone from Safari (Add to Home Screen) and works offline
